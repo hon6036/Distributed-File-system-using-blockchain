@@ -22,7 +22,7 @@ node registerUser.js
 └── walletOrg2
     ├── Org2AppUser.id
     └── admin.id
-```bash
+```
 
 
 
