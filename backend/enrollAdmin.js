@@ -5,56 +5,90 @@
 'use strict';
 
 const FabricCAServices = require('fabric-ca-client');
-const { FileSystemWallet, X509WalletMixin } = require('fabric-network');
+const { Wallets } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
 
-// capture network variables from config.json
-const configPath = path.join(process.cwd(), './aconfig.json');
-const configJSON = fs.readFileSync(configPath, 'utf8');
-const config = JSON.parse(configJSON);
-
-// let connection_file = config.connection_file;
-let appAdmin = config.appAdmin;
-let appAdminSecret = config.appAdminSecret;
-let orgMSPID = config.orgMSPID;
-let caName = config.caName;
-
-// const ccpPath = path.jlsoin(process.cwd(), './www/blockchain/ibpConnection.json');
-// const ccpPath = path.join(process.cwd(), './ibpConnection.json');
-// const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
-// const ccp = JSON.parse(ccpJSON);
-
 async function main() {
   try {
+      // Org1의 connectionProfile 가져오기
+      const ccpPath = path.resolve(process.cwd(), '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+      const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
-    // Create a new CA client for interacting with the CA.
-    const caURL = caName;
-    const ca = new FabricCAServices(caURL);
+      // CA와 상호작용하는 CA client 생성
+      const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
+      const caTLSCACerts = caInfo.tlsCACerts.pem;
+      const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
-    // Create a new file system based wallet for managing identities.
-    const walletPath = path.join(process.cwd(), 'wallet');
-    const wallet = new FileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
+      // Org1의 wallet 생성
+      const walletPath = path.join(process.cwd(), 'walletOrg1');
+      const wallet = await Wallets.newFileSystemWallet(walletPath);
+      console.log(`Wallet path: ${walletPath}`);
 
-    // Check to see if we've already enrolled the admin user.
-    const adminExists = await wallet.exists(appAdmin);
-    if (adminExists) {
-      console.log('An identity for the admin user "admin" already exists in the wallet');
-      return;
-    }
+      // admin이 있는지 확인
+      const identity = await wallet.get('admin');
+      if (identity) {
+          console.log('An identity for the ORG1 admin user "admin" already exists in the wallet');
+          return;
+      }
 
-    // Enroll the admin user, and import the new identity into the wallet.
-    const enrollment = await ca.enroll({ enrollmentID: appAdmin, enrollmentSecret: appAdminSecret });
-    const identity = X509WalletMixin.createIdentity(orgMSPID, enrollment.certificate, enrollment.key.toBytes());
-    wallet.import(appAdmin, identity);
-    console.log('msg: Successfully enrolled admin user ' + appAdmin + ' and imported it into the wallet');
+      // admin enroll
+      const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
+      const x509Identity = {
+          credentials: {
+              certificate: enrollment.certificate,
+              privateKey: enrollment.key.toBytes(),
+          },
+          mspId: 'Org1MSP',
+          type: 'X.509',
+      };
+      await wallet.put('admin', x509Identity);
+      console.log('Successfully enrolled ORG1 admin user "admin" and imported it into the wallet');
 
   } catch (error) {
-    console.error(`Failed to enroll admin user ' + ${appAdmin} + : ${error}`);
-    process.exit(1);
+      console.error(`Failed to enroll ORG1 admin user "admin": ${error}`);
+      process.exit(1);
   }
-}
+  try {
+    // Org2의 connectionProfile 가져오기
+    const ccpPath = path.resolve(process.cwd(), '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org2.example.com', 'connection-org2.json');
+    const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
+    // CA와 상호작용하는 CA client 생성
+    const caInfo = ccp.certificateAuthorities['ca.org2.example.com'];
+    const caTLSCACerts = caInfo.tlsCACerts.pem;
+    const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
+
+    // Org2의 wallet 생성
+    const walletPath = path.join(process.cwd(), 'walletOrg2');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log(`Wallet path: ${walletPath}`);
+
+    // admin 있는지 확인
+    const identity = await wallet.get('admin');
+    if (identity) {
+        console.log('An identity for the ORG2 admin user "admin" already exists in the wallet');
+        return;
+    }
+
+    // enroll admin
+    const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
+    const x509Identity = {
+        credentials: {
+            certificate: enrollment.certificate,
+            privateKey: enrollment.key.toBytes(),
+        },
+        mspId: 'Org1MSP',
+        type: 'X.509',
+    };
+    await wallet.put('admin', x509Identity);
+    console.log('Successfully enrolled ORG2 admin user "admin" and imported it into the wallet');
+
+} catch (error) {
+    console.error(`Failed to enroll ORG2 admin user "admin": ${error}`);
+    process.exit(1);
+}
+  
+}
 
 main();
