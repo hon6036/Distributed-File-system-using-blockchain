@@ -11,13 +11,12 @@
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.16.1",
-    "fabric-ca-client": "^1.4.8",
-    "fabric-client": "^1.4.8",
-    "fabric-network": "^1.4.8",
+    "fabric-ca-client": "^2.2.4",
+    "fabric-network": "^2.2.4",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "nodemon": "^2.0.4",
     "peer": "^0.5.3",
-    "pug": "2.0.0-beta11"
+    "pug": "^3.0.2"
   }
 }
