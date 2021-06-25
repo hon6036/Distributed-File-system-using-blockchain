@@ -15,14 +15,14 @@ cd fabric-samples/Distributed-File-system-using-blockchain/backend
 node enrollment.js
 
 node registerUser.js
-
+```bash
 ├── walletOrg1
 │   ├── Org1AppUser.id
 │   └── admin.id
 └── walletOrg2
     ├── Org2AppUser.id
     └── admin.id
-    
+```bash
 
 
 
