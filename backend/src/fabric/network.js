@@ -5,17 +5,17 @@ const path = require('path');
 const fs = require('fs');
 
 exports.connectToNetwork = async function (userName) {
-
+  console.log(userName)
   const gateway = new Gateway();
-  if (userName = "Org1AppUser") {
+  if (userName == "Org1AppUser") {
     try {
       const util = require('util');
       const walletPath = path.join(process.cwd(), 'walletOrg1');
-      const wallet = new Wallets(walletPath);
+      const wallet = await Wallets.newFileSystemWallet(walletPath);
       console.log(`Wallet path: ${walletPath}`);
       console.log('userName: ');
       console.log(userName);
-      const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+      const ccpPath = path.resolve(process.cwd(), '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
       const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
   
       console.log('wallet: ');
@@ -23,7 +23,7 @@ exports.connectToNetwork = async function (userName) {
       console.log('ccp: ');
       console.log(util.inspect(ccp));
 
-      const userExists = await wallet.exists(userName);
+      const userExists = await wallet.get(userName);
       if (!userExists) {
         let response = {};
         response.error = 'An identity for the user ' + userName + ' does not exist in the wallet. Register ' + userName + ' first';
@@ -32,7 +32,7 @@ exports.connectToNetwork = async function (userName) {
   
       console.log('before gateway.connect: ');
   
-      await gateway.connect(ccp, { wallet, identity: userName, discovery: gatewayDiscovery });
+      await gateway.connect(ccp, { wallet, identity: userName});
   
       // Connect to our local fabric
       const network = await gateway.getNetwork('mychannel');
@@ -62,12 +62,12 @@ exports.connectToNetwork = async function (userName) {
   } else {
     try {
       const util = require('util');
-      const walletPath = path.join(process.cwd(), 'wallet');
-      const wallet = new Wallets(walletPath);
+      const walletPath = path.join(process.cwd(), 'walletOrg2');
+      const wallet = await Wallets.newFileSystemWallet(walletPath);
       console.log(`Wallet path: ${walletPath}`);
       console.log('userName: ');
       console.log(userName);
-      const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org2.example.com', 'connection-org2.json');
+      const ccpPath = path.resolve(process.cwd(), '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org2.example.com', 'connection-org2.json');
       const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
   
       console.log('wallet: ');
@@ -75,7 +75,7 @@ exports.connectToNetwork = async function (userName) {
       console.log('ccp: ');
       console.log(util.inspect(ccp));
 
-      const userExists = await wallet.exists(userName);
+      const userExists = await wallet.get(userName);
       if (!userExists) {
         let response = {};
         response.error = 'An identity for the user ' + userName + ' does not exist in the wallet. Register ' + userName + ' first';
@@ -84,7 +84,7 @@ exports.connectToNetwork = async function (userName) {
   
       console.log('before gateway.connect: ');
   
-      await gateway.connect(ccp, { wallet, identity: userName, discovery: gatewayDiscovery });
+      await gateway.connect(ccp, { wallet, identity: userName });
   
       // Connect to our local fabric
       const network = await gateway.getNetwork('mychannel');
@@ -121,9 +121,6 @@ exports.invoke = async function (networkObj, isFunc, func, args) {
     console.log(`isQuery: ${isFunc}, func: ${func}, args: ${args}`);
     console.log(util.inspect(networkObj));
 
-
-    // console.log(util.inspect(JSON.parse(args[0])));
-
     if (func === 'search') {
       console.log('inside search');
       console.log(args);
@@ -151,6 +148,8 @@ exports.invoke = async function (networkObj, isFunc, func, args) {
 
     } else {
       console.log('inside query');
+      console.log(func)
+      console.log(networkObj.contract)
       let response = await networkObj.contract.evaluateTransaction(func)
       console.log('after sumit');
       console.log(response)

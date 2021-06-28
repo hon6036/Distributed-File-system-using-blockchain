@@ -9,7 +9,7 @@ const { Contract, Context } = require('fabric-contract-api');
 
 // FileNet specifc classes
 const FileSystem = require('./file.js');
-const FileList = require('./fileList.js');
+const FileList = require('./filelist.js');
 
 /**
  * A custom context provides easy access to list of all commercial Files

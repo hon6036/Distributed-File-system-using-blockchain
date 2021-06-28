@@ -1,20 +1,19 @@
 'use strict';
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const util = require('util');
 const path = require('path');
 const fs = require('fs');
+const bodyParser = require('body-parser')
 
 let network = require('../src/fabric/network.js');
 
 const app = express();
 app.use(morgan('combined'));
-app.use(bodyParser.json());
 app.use(cors());
-
+app.use(bodyParser.json())
 
 app.post('/search', async (req, res) => {
   let args = req.body

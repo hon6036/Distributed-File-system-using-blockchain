@@ -17,11 +17,6 @@ export default {
       channel: channel
     })
   },
-  registerUser (name) {
-    return Api().post('registerUser', {
-      name: name
-    })
-  },
   queryAll (issuer) {
     return Api().post('queryAll', {
       issuer: issuer

@@ -12,7 +12,7 @@ const FileSystem = require('./file.js');
 class FileList extends StateList {
 
     constructor(ctx) {
-        super(ctx, 'org.file.filesystemlist');
+        super(ctx, 'org.file.filesystem');
         this.use(FileSystem);
     }
 
