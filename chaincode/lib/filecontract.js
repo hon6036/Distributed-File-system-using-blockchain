@@ -1,5 +1,7 @@
 /*
-SPDX-License-Identifier: Apache-2.0
+ * Copyright IBM Corp. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
 */
 
 'use strict';
@@ -7,36 +9,36 @@ SPDX-License-Identifier: Apache-2.0
 // Fabric smart contract classes
 const { Contract, Context } = require('fabric-contract-api');
 
-// FileNet specifc classes
+// PaperNet specifc classes
 const FileSystem = require('./file.js');
 const FileList = require('./filelist.js');
 
 /**
- * A custom context provides easy access to list of all commercial Files
+ * A custom context provides easy access to list of all commercial papers
  */
 class FileSystemContext extends Context {
 
     constructor() {
         super();
-        // All Files are held in a list of Files
+        // All papers are held in a list of papers
         this.fileList = new FileList(this);
     }
 
 }
 
 /**
- * Define commercial File smart contract by extending Fabric Contract class
+ * Define commercial paper smart contract by extending Fabric Contract class
  *
  */
 class FileSystemContract extends Contract {
 
     constructor() {
         // Unique namespace when multiple contracts per chaincode file
-        super('org.file.fileSystem');
+        super('org.filenet.filesystem');
     }
 
     /**
-     * Define a custom context for commercial File
+     * Define a custom context for commercial paper
     */
     createContext() {
         return new FileSystemContext();
@@ -50,19 +52,6 @@ class FileSystemContract extends Contract {
         // No implementation required with this example
         // It could be where data migration is performed, if necessary
         console.log('Instantiate the contract');
-    }
-
-    async upload(ctx, issuer, fileName, fileSize, channel) {
-
-        let file = FileSystem.createInstance(issuer, fileName, fileSize, channel);
-
-        file.setUpload();
-        file.setIssuer(issuer);
-        file.setFilename(fileName);
-
-        await ctx.FileList.addFile(file);
-
-        return file;
     }
 
     async search(ctx, issuer, fileName, fileSize, channel) {
@@ -129,7 +118,6 @@ class FileSystemContract extends Contract {
         }
 
     }
-
 
 }
 

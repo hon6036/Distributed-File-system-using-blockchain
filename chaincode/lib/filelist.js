@@ -1,5 +1,7 @@
 /*
-SPDX-License-Identifier: Apache-2.0
+ * Copyright IBM Corp. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
 */
 
 'use strict';
@@ -12,7 +14,7 @@ const FileSystem = require('./file.js');
 class FileList extends StateList {
 
     constructor(ctx) {
-        super(ctx, 'org.file.filesystem');
+        super(ctx, 'org.filenet.files');
         this.use(FileSystem);
     }
 

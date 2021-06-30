@@ -19,7 +19,9 @@ const dbPath = path.join(remote.app.getPath('appData'), '/asset')
 const fs = window.require('fs')
 console.log(dbPath)
 Vue.prototype.$path = dbPath
-const user = 'Org1AppUser'
+const user = 'Org2AppUser'
+const channel = 'mychannel'
+Vue.prototype.$channel = channel
 Vue.prototype.$user = user
 const peer = new Peer(user)
 Vue.prototype.$peer = peer

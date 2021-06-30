@@ -1,48 +1,83 @@
 <template>
-  <div class="files" v-cloak @drop.prevent="addFile" @dragover.prevent>
-    <v-item-group>
-      <v-item v-for="item in file" v-bind:key="item.key">
-        <div v-if="item.isLeaf">
-          <v-icon large @click="fileOpen(item)">mdi-file</v-icon>
-          <div>{{ item.title }}</div>
-        </div>
-        <div v-else>
-          <v-icon  large @click="folderOpen(item)">mdi-folder</v-icon>
-          <div>{{ item.title }}</div>
-        </div>
-      </v-item>
-    </v-item-group>
+  <div id="dataTable" class="dataTable" @contextmenu.prevent="$refs.ctxMenu.open" v-cloak @drop.prevent="addFile" @dragover.prevent>
+  <context-menu id="context-menu" ref="ctxMenu">
+    <li @click="makeNewFolder()">NewFolder</li>
+  </context-menu>
+    <v-data-table :headers="headers" :items="items" @click:row="Open">
+      <template v-slot:[`item.title`]="{ item }">
+        <v-icon v-if="item.title.split('.')[1] === 'txt'">mdi-file</v-icon>
+        <v-icon v-else-if="item.title.split('.')[1] === 'mp3'">mdi-file-music</v-icon>
+        <v-icon v-else-if="item.title.split('.')[1] === 'png'">mdi-image-outline</v-icon>
+        <v-icon v-else-if="item.title.split('.')[1] === 'ods'">mdi-microsoft-excel</v-icon>
+        <v-icon v-else-if="item.title.split('.')[1] === 'odp'">mdi-microsoft-powerpoint</v-icon>
+        <v-icon v-else-if="item.title.split('.')[1] === 'mp4'">mdi-file-video</v-icon>
+        <v-icon v-else>mdi-folder</v-icon>
+        {{ item.title }}
+      </template>
+    </v-data-table>
   </div>
 </template>
 <script>
 import PostsService from "@/services/apiService"
-import Peer from 'peerjs'
+import contextMenu from 'vue-context-menu'
 const fs = window.require('fs')
 const path = require('path')
+
 export default {
   name: 'file-list',
   components: {
+    contextMenu
   },
   data () {
     return {
+      headers: [
+        { text: 'Name', align: 'left', value: 'title', sortable: false, width: '300px' },
+        { text: 'Owner', value: 'owner', sortable: false, width: '200px' },
+        { text: 'Size', value: 'size', sortable: false }
+      ],
       response: {},
-      file: []
+      items: [],
+      fileIssuer: [],
+      fileSize: [],
+      dir: '',
+      dialog: false
     }
   },
   created () {
     this.$EventBus.$on('send-folder', payload => {
-      this.file = payload.children
-      console.log(payload.children)
+      var tmp = []
+      var fileIssuer = this.fileIssuer
+      var fileSize = this.fileSize
+      payload.children.forEach(function (element) {
+        tmp.push({ title: element.title, owner: fileIssuer[element.title], size: parseInt(fileSize[element.title] / 1024) + "MB", isLeaf: element.isLeaf })
+      })
+      this.items = tmp
+    })
+    this.$EventBus.$on('send-fileIssuer', payload => {
+      this.fileIssuer = payload
+    })
+    this.$EventBus.$on('send-fileSize', payload => {
+      this.fileSize = payload
+    })
+    this.$EventBus.$on('send-dir', payload => {
+      this.dir = payload
     })
   },
   methods: {
+    makeNewFolder () {
+      this.dialog = true
+      console.log("makeNewFolder")
+      this.items.push({ title: "test", owner: this.$user, size: 0, isLeaf: false })
+    },
     async addFile (e) {
+      console.log(this.dir)
+      console.log(123123)
       const droppedFiles = e.dataTransfer.files
-      console.log(droppedFiles)
       const fileName = droppedFiles[0].name
-      const fileSize = droppedFiles[0].path
+      const fileSize = String(droppedFiles[0].size)
+      const filePath = path.join(String(this.dir), fileName)
       const pathNewDest = path.join(this.$path, fileName)
-      fs.copyFile(fileSize, pathNewDest, (err) => {
+      fs.copyFile(droppedFiles[0].path, pathNewDest, (err) => {
         if (err) {
           console.log(err)
         }
@@ -50,53 +85,56 @@ export default {
       const apiResponse = await PostsService.upload(
         this.$user,
         fileName,
-        String(fileSize),
-        'achannel'
+        fileSize,
+        this.$channel,
+        filePath
       )
       console.log(apiResponse)
+      console.log(this.items)
+      this.items.push({ title: fileName, owner: this.$user, isLeaf: true })
       console.log(fileName)
       console.log(fileSize)
       console.log(droppedFiles[0])
     },
-    async fileOpen (item) {
-      console.log("open")
+    async Open (item) {
+      console.log(this.dir)
       console.log(item)
-      const fileP = path.join(this.$path, item.title)
-      const apiResponse = await PostsService.search(
-        this.$user,
-        item.title
-      )
-      console.log(apiResponse.data)
-      if (fs.existsSync(fileP)) {
-        console.log("file exist")
+      if (item.isLeaf) {
+        console.log(this.fileIssuer[item.title])
+        console.log("open")
+        console.log(item.title)
+        const fileP = path.join(this.$path, item.title)
+        if (fs.existsSync(fileP)) {
+          console.log("file exist")
+        } else {
+          console.log('else')
+          this.$socket.emit('find', {
+            fileName: item.title,
+            issuer: this.fileIssuer[item.title],
+            socketID: this.$socketID
+          })
+        }
       } else {
-        const peer = new Peer(this.$user)
-        const conn = peer.connect(apiResponse.data.issuer)
-        conn.on('open', () => {
-          conn.send(item.title)
-        })
+        this.dir = path.join(this.dir, item.title)
+        console.log(this.dir)
+        console.log("asdsad")
+        console.log(item)
+        if (item.children) {
+          this.items = item.children
+        } else {
+          this.items = []
+        }
       }
-    },
-    async folderOpen (folder) {
-      this.file = folder.children
-    },
-    async query (user) {
-      this.response = null
-      const apiResponse = await PostsService.queryAll(
-        this.$user
-      )
-      console.log(apiResponse.data)
-      console.log("apiResponse")
-      this.response = apiResponse.data
     }
   }
 }
 </script>
 <style>
-.files {
-  width: 500px;
-  height: 100%;
+.dataTable {
+  font-family: 'Nanum Gothic', sans-serif;
+  width: 600px;
+  left: 300px;
+  height: 600px;
   position: relative;
-  left: 60%
 }
 </style>

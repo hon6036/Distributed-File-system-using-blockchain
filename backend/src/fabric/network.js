@@ -32,14 +32,14 @@ exports.connectToNetwork = async function (userName) {
   
       console.log('before gateway.connect: ');
   
-      await gateway.connect(ccp, { wallet, identity: userName});
+      await gateway.connect(ccp, { wallet, identity: userName, discovery: { enabled: true, asLocalhost: true }});
   
       // Connect to our local fabric
       const network = await gateway.getNetwork('mychannel');
   
       console.log('Connected to mychannel. ');
       // Get the contract we have installed on the peer
-      const contract = await network.getContract('contract');
+      const contract = await network.getContract('file');
   
       let networkObj = {
         contract: contract,
@@ -91,7 +91,7 @@ exports.connectToNetwork = async function (userName) {
   
       console.log('Connected to mychannel. ');
       // Get the contract we have installed on the peer
-      const contract = await network.getContract('contract');
+      const contract = await network.getContract('file');
 
       let networkObj = {
         contract: contract,
@@ -149,7 +149,7 @@ exports.invoke = async function (networkObj, isFunc, func, args) {
     } else {
       console.log('inside query');
       console.log(func)
-      console.log(networkObj.contract)
+      console.log(networkObj)
       let response = await networkObj.contract.evaluateTransaction(func)
       console.log('after sumit');
       console.log(response)
