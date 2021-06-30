@@ -4,7 +4,7 @@ Hyperledger Fabric v2.2의 fabric-samples를 받고 git clone
 
 cd fabric-samples/test-network
 
-./network up -ca
+./network up -ca -s couchdb
 
 ./network createChannel
 
