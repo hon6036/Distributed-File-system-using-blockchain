@@ -21,3 +21,8 @@ export default {
   })
 }
 </script>
+<style>
+#app {
+  font-family: 'Naum Gothic', sans-serif;
+}
+</style>

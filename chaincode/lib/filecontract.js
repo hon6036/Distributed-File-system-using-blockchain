@@ -54,6 +54,19 @@ class FileSystemContract extends Contract {
         console.log('Instantiate the contract');
     }
 
+    async upload(ctx, issuer, fileName, fileSize, channel, filePath) {
+        let file = FileSystem.createInstance(issuer, fileName, fileSize, channel, filePath);
+        console.log(file)
+
+        file.setUpload();
+        file.setIssuer(issuer);
+        file.setFilename(fileName);
+
+        await ctx.fileList.addFile(file);
+        
+        return file;
+    }
+
     async search(ctx, issuer, fileName, fileSize, channel) {
 
         let fileKey = FileSystem.makeKey([issuer, fileName]);

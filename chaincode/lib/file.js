@@ -65,8 +65,8 @@ class FileSystem extends State {
     /**
      * Factory method to create a commercial paper object
      */
-    static createInstance(issuer, fileName, fileSize, channel) {
-        return new FileSystem({ issuer, fileName, fileSize, channel });
+    static createInstance(issuer, fileName, fileSize, channel, filePath) {
+        return new FileSystem({ issuer, fileName, fileSize, channel, filePath });
     }
 
     static getClass() {

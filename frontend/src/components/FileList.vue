@@ -22,6 +22,7 @@ import PostsService from "@/services/apiService"
 import contextMenu from 'vue-context-menu'
 const fs = window.require('fs')
 const path = require('path')
+const { remote } = window.require('electron')
 
 export default {
   name: 'file-list',
@@ -31,7 +32,7 @@ export default {
   data () {
     return {
       headers: [
-        { text: 'Name', align: 'left', value: 'title', sortable: false, width: '300px' },
+        { text: 'Name', align: 'left', value: 'title', sortable: false, width: '250px' },
         { text: 'Owner', value: 'owner', sortable: false, width: '200px' },
         { text: 'Size', value: 'size', sortable: false }
       ],
@@ -58,9 +59,6 @@ export default {
     })
     this.$EventBus.$on('send-fileSize', payload => {
       this.fileSize = payload
-    })
-    this.$EventBus.$on('send-dir', payload => {
-      this.dir = payload
     })
   },
   methods: {
@@ -111,6 +109,7 @@ export default {
           this.$socket.emit('find', {
             fileName: item.title,
             issuer: this.fileIssuer[item.title],
+
             socketID: this.$socketID
           })
         }

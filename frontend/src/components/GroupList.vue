@@ -59,7 +59,7 @@ export default {
     var fileIssuer = {}
     var fileSize = {}
     for (var j in item) {
-      list.push(item[j].Record.filePath)
+      list.push(this.$channel + "/" + item[j].Record.filePath)
       fileIssuer[item[j].Record.fileName] = item[j].Record.issuer
       fileSize[item[j].Record.fileName] = item[j].Record.fileSize
     }
@@ -67,14 +67,14 @@ export default {
     console.log("list")
     console.log(list)
     var data = []
+    var path = ''
     for (var i = 0; i < list.length; i++) {
       this.buildTree(list[i].split('/'), data)
-      console.log(1234)
     }
-    console.log(data)
-    console.log(8888888888)
     this.dir = this.$channel
     this.nodes = data
+    console.log(data)
+    console.log(123123123)
     this.$EventBus.$emit('send-fileIssuer', fileIssuer)
     this.$EventBus.$emit('send-fileSize', fileSize)
   },
@@ -102,6 +102,19 @@ export default {
       console.log("click")
       this.getFolder(folder)
       this.getDir(folder)
+    },
+    getFolder: function (folder) {
+      this.$EventBus.$emit('send-folder', folder)
+    },
+    getDir (folder) {
+      console.log(folder)
+      var array = this.list
+      for (var i in array) {
+        var temp = array[i].split('/')
+        if (temp[folder.level - 1] === folder.title) {
+          this.dir = temp.splice(0, folder.level).join('/')
+        }
+      }
     },
     addFolder () {
       var input = this.folderName

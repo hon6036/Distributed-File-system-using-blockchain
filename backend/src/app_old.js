@@ -1,23 +1,21 @@
 'use strict';
 
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const util = require('util');
 const http = require('http')
-const path = require('path');
-const fs = require('fs');
-const bodyParser = require('body-parser')
-let network = require('../src/fabric/network.js');
-
-const app = express();
-app.use(morgan('combined'));
+const app = express()
 app.use(cors());
-app.use(bodyParser.json())
 const server = http.createServer(app)
 const io = require('socket.io')(server)
+let network = require('../src/fabric/network.js');
 
+app.use(morgan('combined'));
+app.use(bodyParser.json());
 const peerlist = {}
+
 io.on('connection', function (socket) {
   console.log('Connection with ID:', socket.id);
   socket.on('id', function(data) {
@@ -79,7 +77,25 @@ app.post('/upload', async (req, res) => {
   } else {
     console.log('response: ');
     console.log(response);
+    // let parsedResponse = await JSON.parse(response);
     res.send(response);
+  }
+});
+
+app.post('/registerUser', async (req, res) => {
+  console.log('req.body: ');
+  console.log(req.body);
+  let userName = req.body.name;
+
+  //first create the identity for the voter and add to wallet
+  let networkObj = await network.registerUser(userName);
+  console.log('networkobj: ');
+  console.log(networkObj);
+  if (networkObj.error) {
+    res.send(networkObj.error);
+  }
+  else {
+    res.send(networkObj)
   }
 });
 

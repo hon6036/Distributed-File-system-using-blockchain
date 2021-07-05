@@ -13,11 +13,13 @@ import VueSimpleContextMenu from 'vue-simple-context-menu'
 var wrtc = require('wrtc')
 var Peer = require('simple-peer')
 var io = require('socket.io-client')
-var socket = io(`http://10.0.2.15:8080`, { transports: ['websocket', 'polling', 'flashsocket'] })
+var socket = io.connect(`http://192.168.25.40:8080`)
 // var peers = {}
 // var useTrickle = true
+Vue.prototype.$channel = "ICE_Group(root folder)"
 Vue.prototype.$socket = socket
-
+const userEmail = 'jerry@gmail.com'
+const user = 'Jerry'
 Vue.component('sl-vue-tree', slVueTree)
 Vue.component('icon', Icon)
 Vue.component('vue-simple-context-menu', VueSimpleContextMenu)
@@ -28,10 +30,9 @@ const dbPath = path.join(remote.app.getPath('appData'), '/asset')
 const fs = window.require('fs')
 console.log(dbPath)
 Vue.prototype.$path = dbPath
-const user = 'Org2AppUser'
-const channel = 'mychannel'
-Vue.prototype.$channel = channel
 Vue.prototype.$user = user
+Vue.prototype.$userEmail = userEmail
+console.log(dbPath)
 const makeFolder = (dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -41,7 +42,7 @@ makeFolder(dbPath)
 socket.on('connect', function () {
   console.log('Connected to signalling server, Peer ID: %s', socket.id)
   socket.emit('id', {
-    user: user,
+    user: userEmail,
     socketID: socket.id
   })
   Vue.prototype.$socketID = socket.id

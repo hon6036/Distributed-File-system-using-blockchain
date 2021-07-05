@@ -1,12 +1,12 @@
 import Api from '@/services/api'
 
 export default {
-  search (issuer, fileName, fileSize, channel) {
+  search (issuer, fileName) {
     return Api().post('search', {
       issuer: issuer,
       fileName: fileName,
-      fileSize: fileSize,
-      channel: channel
+      fileSize: "fileSize",
+      channel: "channel"
     })
   },
   upload (issuer, fileName, fileSize, channel, filePath) {
@@ -16,6 +16,11 @@ export default {
       fileSize: fileSize,
       channel: channel,
       filePath: filePath
+    })
+  },
+  registerUser (name) {
+    return Api().post('registerUser', {
+      name: name
     })
   },
   queryAll (issuer) {

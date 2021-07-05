@@ -11,6 +11,7 @@ module.exports = {
     parser: 'babel-eslint'
   },
   rules: {
+    'no-unused-vars': 0,
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'quotes': ['off', 'single'],
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'

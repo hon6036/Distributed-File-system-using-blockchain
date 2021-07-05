@@ -137,7 +137,7 @@ exports.invoke = async function (networkObj, isFunc, func, args) {
       console.log(networkObj.contract)
       console.log(args);
       console.log(func);
-      let response = await networkObj.contract.submitTransaction(func, args["issuer"], args["fileName"], args["fileSize"], args["channel"]);
+      let response = await networkObj.contract.submitTransaction(func, args["issuer"], args["fileName"], args["fileSize"], args["channel"], args["filePath"]);
       console.log('after submit');
       console.log(response);
       console.log(`Transaction ${func} with args ${args} has been submitted`);
