@@ -25,6 +25,7 @@ Vue.config.productionTip = false
 Vue.prototype.$EventBus = new Vue()
 const { remote } = window.require('electron')
 const dbPath = path.join(remote.app.getPath('appData'), '/asset')
+console.log(dbPath)
 const fs = window.require('fs')
 console.log(dbPath)
 Vue.prototype.$path = dbPath
