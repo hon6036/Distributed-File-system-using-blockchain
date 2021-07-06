@@ -24,5 +24,10 @@ node registerUser.js
     └── admin.id
 ```
 
+frontend의 main.js 파일에서 socket io(ip 변경), api.js에서 baseURL 변경
 
+frontend와 backend에서 npm install
+
+backend는 npm start
+frontend는 yarn electron:serve
 
