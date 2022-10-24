@@ -31,3 +31,9 @@ frontend와 backend에서 npm install
 backend는 npm start
 frontend는 yarn electron:serve
 
+
+결과
+![image](https://user-images.githubusercontent.com/50129757/197471742-3be045af-a74d-4d2e-b01a-0acc23accf73.png)
+
+
+
